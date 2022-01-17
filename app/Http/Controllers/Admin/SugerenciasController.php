@@ -21,7 +21,7 @@ class SugerenciasController extends Controller
     {
         $sugerencia = sugerencias::all();
         return view('admin.sugerencias.index', compact('sugerencia'));
-        
+
     }
 
     public function indexAjax(Request $request){
@@ -69,21 +69,22 @@ class SugerenciasController extends Controller
         }else{
             $datos['auditoria'] = 'no';
         }
-        
+
         $empleado = empleados::where([['status_t','=',null],['cedula','=',$cedula]])->
                             select('num_emp','nom1_emp','apell1_emp')->
                             first();
-                                              
+
         if ($empleado !== null) {
             $datos['nombre'] = $empleado->nom1_emp;
             $datos['apellido'] = $empleado->apell1_emp;
-            $datos['usuario_creador' ] = $empleado->num_emp;         
+            $datos['usuario_creador' ] = $empleado->num_emp;
         }
-         
+
         $messages = ['required' => 'El campo :attribute es requerido.',
                      'exists'   => 'La :attribute ingresada no existe.',];
-
-        validator($datos, [
+        $validated = $request->validate(['descripcion' => 'required'],$messages);
+                     //dd($datos);
+     /*   validator($datos, [
             'cedula'           => 'required|exists:empleados,cedula',
             'tipo'             => 'required',
             'nombre'           => 'required',
@@ -91,12 +92,12 @@ class SugerenciasController extends Controller
             'descripcion'      => 'required',
             'usuario_creador'  => 'required'
         ],$messages);
-       
-        try {            
+*/
+        try {
             sugerencias::create($datos);
-            return redirect()->route('admin.sugerencias.create'); 
+            return redirect()->route('admin.sugerencias.create');
         }
-        catch (\Exception $e ){                
+        catch (\Exception $e ){
             return response()->json(array("data" => $e->getMessage(), "code" => 501, "msj" => "Respuesta Exitosa"), 501);
         }
     }
